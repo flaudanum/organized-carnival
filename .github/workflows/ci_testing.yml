@@ -35,7 +35,7 @@ jobs:
           # cache-dependency-path: # optional
 
       - name: Poetry setup
-        uses: ClementWalter/poetry-action@v1.2.2
+        uses: ClementWalter/poetry-action@16046d9ac9b72a49e1bc4618fb686695cc64821c
       #        with:
       #          #
       #          os:
