@@ -1,0 +1,43 @@
+# This is a basic workflow to help you get started with Actions
+name: CI testing
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4.3.0
+        with:
+          python-version: '3.10.7'
+          # File containing the Python version to use. Example: .python-version
+          # python-version-file: .python-version
+          # The target architecture (x86, x64) of the Python or PyPy interpreter.
+          architecture: x64
+          # Used to specify the path to dependency files. Supports wildcards or a list of file names for caching multiple dependencies.
+          # cache-dependency-path: # optional
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip setuptools
+          pip install poetry
+          poetry install
+
+      - name: Run tests
+        run: poetry run pytest ./tests/

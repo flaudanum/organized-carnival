@@ -4,11 +4,15 @@ version = "0.0.0"
 description = ""
 authors = ["Frédéric LAUDARIN <frederic.laudarin@gmail.com>"]
 readme = "README.md"
-packages = [{include = "organized_carnival"}]
+packages = [{ include = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.10, <3.11"
 
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.10.1"
+pytest = "^7.1.3"
 
 [build-system]
 requires = ["poetry-core"]
