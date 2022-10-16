@@ -40,4 +40,4 @@ jobs:
           poetry install
 
       - name: Run tests
-        run: poetry shell pytest ./tests/
+        run: poetry run pytest ./tests/
