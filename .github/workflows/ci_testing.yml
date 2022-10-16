@@ -34,16 +34,11 @@ jobs:
           # Used to specify the path to dependency files. Supports wildcards or a list of file names for caching multiple dependencies.
           # cache-dependency-path: # optional
 
-      - name: Poetry setup
-        uses: ClementWalter/poetry-action@16046d9ac9b72a49e1bc4618fb686695cc64821c
-      #        with:
-      #          #
-      #          os:
-      #          #
-      #          python-version:
-
       - name: Install dependencies
-        run: poetry install
+        run: |
+          python -m pip install -U pip setuptools
+          pip install poetry
+          poetry install
 
       - name: Run tests
         run: pytest ./tests/
