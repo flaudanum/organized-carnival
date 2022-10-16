@@ -4,7 +4,7 @@ version = "0.0.0"
 description = ""
 authors = ["Frédéric LAUDARIN <frederic.laudarin@gmail.com>"]
 readme = "README.md"
-packages = [{include = "organized_carnival"}]
+packages = [{ include = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.10, <3.11"
