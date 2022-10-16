@@ -10,6 +10,10 @@ packages = [{include = "organized_carnival"}]
 python = "^3.10, <3.11"
 
 
+[tool.poetry.group.dev.dependencies]
+isort = "^5.10.1"
+pytest = "^7.1.3"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
