@@ -1,11 +1,6 @@
-import os
-from pathlib import Path
-
 import click
 
-from src.file_infos import FileInfo
 from src.file_scan import FileScan
-from src.hasher import Hasher
 
 
 @click.argument("directory", type=click.Path(exists=True))
