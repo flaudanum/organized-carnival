@@ -10,7 +10,7 @@ class FileScan:
     def files(self):
         return self._files
 
-    def __init__(self, directory: str, no_file_hash: bool):
+    def __init__(self, directory: str, no_file_hash: bool = False):
         self._directory = directory
         self._files = []
         dir_path = Path(directory)
