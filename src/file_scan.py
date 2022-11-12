@@ -35,3 +35,6 @@ class FileScan:
 
     def __str__(self):
         return "\n".join([str(info) for info in self._files])
+
+    def to_dict(self):
+        return {"directory": self._directory, "files": [info.to_dict() for info in self._files]}
