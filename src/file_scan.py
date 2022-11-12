@@ -10,7 +10,7 @@ class FileScan:
     def files(self):
         return self._files
 
-    def __init__(self, directory: str, no_file_hash: bool):
+    def __init__(self, directory: str, no_file_hash: bool = False):
         self._directory = directory
         self._files = []
         dir_path = Path(directory)
@@ -35,3 +35,6 @@ class FileScan:
 
     def __str__(self):
         return "\n".join([str(info) for info in self._files])
+
+    def to_dict(self):
+        return {"directory": self._directory, "files": [info.to_dict() for info in self._files]}
