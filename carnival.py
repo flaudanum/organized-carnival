@@ -39,9 +39,13 @@ def compare(dir_a: str, dir_b: str):
         print(f"Files missing in directory '{dir_a}':")
         missing = file_scan_b.hashes - file_scan_a.hashes
         for hash_key in missing:
-            print("*", file_scan_b.files[hash_key].path)
+            for info in file_scan_b.files[hash_key]:
+                print("*", info.path)
         print(f"Files missing in directory '{dir_b}':")
-        print(file_scan_a.hashes - file_scan_b.hashes)
+        missing = file_scan_a.hashes - file_scan_b.hashes
+        for hash_key in missing:
+            for info in file_scan_b.files[hash_key]:
+                print("*", info.path)
 
 
 @click.group()

@@ -1,5 +1,6 @@
 import os
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 import orjson
@@ -20,7 +21,7 @@ class FileScan:
 
     def __init__(self, directory: str, no_file_hash: bool = False):
         self._directory = directory
-        self._files = {}
+        self._files = defaultdict(list)
 
         # Creates a dummy object
         if directory == "":
@@ -47,11 +48,7 @@ class FileScan:
                 file_hash = hasher.hash(path)
                 key = file_hash[:8]
 
-            self._files[key] = FileInfo(
-                path=path_str,
-                size_bytes=size_bytes,
-                hash=file_hash,
-            )
+            self._files[key].append(FileInfo(path=path_str, size_bytes=size_bytes, hash=file_hash))
 
     def __repr__(self):
         return f"FileScan('{self._directory}')"
@@ -62,7 +59,7 @@ class FileScan:
     def dump(self, directory):
         file_scan_dict = {
             "directory": self._directory,
-            "files": {key: info.to_dict() for key, info in self._files.items()},
+            "files": {key: [info.to_dict() for info in infos] for key, infos in self._files.items()},
         }
         scan_dump_path = Path(directory) / SCAN_DUMP_FILENAME
         dump_exists = scan_dump_path.is_file()
@@ -84,6 +81,10 @@ class FileScan:
 
         file_scan = FileScan(directory="")
         file_scan._directory = file_scan_dict["directory"]
-        file_scan._files = {key: FileInfo.from_dict(info_dict) for key, info_dict in file_scan_dict["files"].items()}
+        file_scan_dict_files: dict[str, list[FileInfo]] = {
+            key: [FileInfo.from_dict(info) for info in infos_dict]
+            for key, infos_dict in file_scan_dict["files"].items()
+        }
+        file_scan._files.update(file_scan_dict_files)
 
         return file_scan
