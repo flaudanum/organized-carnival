@@ -1,7 +1,4 @@
-from pathlib import Path
-
 import click
-import orjson
 
 from src.file_scan import FileScan
 
@@ -22,10 +19,29 @@ def scan(directory: str, no_file_hash: bool, save_scan: bool, print_out: bool):
     """
     file_scan = FileScan(directory, no_file_hash)
     if save_scan:
-        with (Path(directory) / "carnival.dump.json").open("wb") as binary_io:
-            binary_io.write(orjson.dumps(file_scan.to_dict()))
+        file_scan.dump(directory)
     if print_out:
         print(file_scan)
+
+
+@click.argument("dir_b", type=click.Path(exists=True))
+@click.argument("dir_a", type=click.Path(exists=True))
+@click.command()
+def compare(dir_a: str, dir_b: str):
+    """
+    Compare files in directories which paths are 'dir_a' and 'dir_b'
+    """
+    file_scan_a = FileScan.from_dump(dir_a)
+    file_scan_b = FileScan.from_dump(dir_b)
+    if file_scan_a.hashes ^ file_scan_b.hashes == set():
+        print("EQUAL")
+    else:
+        print(f"Files missing in directory '{dir_a}':")
+        missing = file_scan_b.hashes - file_scan_a.hashes
+        for hash_key in missing:
+            print("*", file_scan_b.files[hash_key].path)
+        print(f"Files missing in directory '{dir_b}':")
+        print(file_scan_a.hashes - file_scan_b.hashes)
 
 
 @click.group()
@@ -34,6 +50,7 @@ def cli():
 
 
 cli.add_command(scan)
+cli.add_command(compare)
 
 if __name__ == "__main__":
     cli()
