@@ -11,10 +11,6 @@ class Hasher:
         """
         Compute the md5 sum of a file
         """
-        with file_path.open("rb") as text_io:
-            buffer = text_io.read(self._block_size)
-            while len(buffer) > 0:
-                self._hasher.update(buffer)
-                buffer = text_io.read(self._block_size)
-
-        return self._hasher.hexdigest()
+        with file_path.open("rb") as binary_io:
+            byte_data = binary_io.read()
+        return hashlib.md5(byte_data).hexdigest()
