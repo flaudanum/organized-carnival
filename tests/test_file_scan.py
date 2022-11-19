@@ -15,8 +15,16 @@ def test_recursive_file_scan_directory():
         "file2": 2,
     }
 
+    # List of scanned file info items
+    file_info_list = list(itertools.chain(*file_scan.files.values()))
+
+    # Set of file paths
+    file_info_paths = {info.path for info in file_info_list}
+
+    # All file paths were reached
+    assert file_info_paths == set(ref_sizes_bytes)
+
     # Check the completeness of the list of files
-    file_info_list = itertools.chain(*file_scan.files.values())
     assert {info.path for info in file_info_list} == set(ref_sizes_bytes)
     # Check the size of files
     for info in file_info_list:
