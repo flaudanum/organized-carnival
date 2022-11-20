@@ -1,3 +1,4 @@
+import itertools
 import os
 import sys
 from collections import defaultdict
@@ -15,6 +16,10 @@ DATETIME_FORMAT = "%y%m%d-%H:%M:%S%z"
 
 class FileScan:
     @property
+    def created_at(self):
+        return self._created_at
+
+    @property
     def files(self):
         return self._files
 
@@ -22,27 +27,44 @@ class FileScan:
     def hashes(self):
         return set(self._files)
 
-    def __init__(self, directory: str, no_file_hash: bool = False):
+    def __init__(self, directory: str, no_file_hash: bool = False, complete_rescan: bool = False):
         self._directory = directory
-        self._files = defaultdict(list)
+        self._files: defaultdict[str, list[FileInfo]] = defaultdict(list)
         local_tz = datetime.now().astimezone().tzinfo
         self._created_at = datetime.now(tz=local_tz)
+        self._updated_at = datetime.now(tz=local_tz)
 
         # Creates a dummy object
         if directory == "":
             return
 
         dir_path = Path(directory)
+        relative_file_paths = set()
+
+        if not complete_rescan and (Path(directory) / SCAN_DUMP_FILENAME).is_file():
+            saved_scan = FileScan.from_dump(directory)
+            self._files = saved_scan.files
+            self._created_at = saved_scan.created_at
+            relative_file_paths = {
+                str(Path(info.path)) for info in itertools.chain(*self._files.values())
+            }
+        elif not (Path(directory) / SCAN_DUMP_FILENAME).is_file():
+            complete_rescan = True
 
         hasher = Hasher()
         for path in dir_path.glob("**/*"):
-            # TODO: recursive scan
             if path.is_dir():
                 continue
             # Skips scan dump files
             if path.name == SCAN_DUMP_FILENAME:
                 continue
+
             path_str = str(path.relative_to(dir_path))
+
+            # File path already scanned
+            if not complete_rescan and path_str in relative_file_paths:
+                continue
+
             size_bytes = os.path.getsize(path.absolute())
             file_hash = None
 
@@ -65,6 +87,7 @@ class FileScan:
         file_scan_dict = {
             "directory": self._directory,
             "created_at": self._created_at.strftime(DATETIME_FORMAT),
+            "updated_at": self._updated_at.strftime(DATETIME_FORMAT),
             "files": {key: [info.to_dict() for info in infos] for key, infos in self._files.items()},
         }
         scan_dump_path = Path(directory) / SCAN_DUMP_FILENAME
@@ -94,5 +117,6 @@ class FileScan:
         file_scan._files.update(file_scan_dict_files)
 
         file_scan._created_at = datetime.strptime(file_scan_dict["created_at"], DATETIME_FORMAT)
+        file_scan._updated_at = datetime.strptime(file_scan_dict["updated_at"], DATETIME_FORMAT)
 
         return file_scan
