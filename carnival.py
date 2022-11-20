@@ -3,23 +3,20 @@ import click
 from src.file_scan import FileScan
 
 
-@click.option("--print", "print_out", is_flag=True, help="Prints scan result to the standard output")
-@click.option("--save", "save_scan", is_flag=True, help="Saves a dump of the scan in the directory")
 @click.option(
-    "--no-fhash",
-    "no_file_hash",
-    is_flag=True,
-    help="Does not compute file hashes (improve performance)",
+    "--rescan", "complete_rescan", is_flag=True, help="Performs a complete scan regardless of an existing scan dump"
 )
+@click.option("--print", "print_out", is_flag=True, help="Prints scan result to the standard output")
+@click.option("--no-fhash", "no_file_hash", is_flag=True, help="Does not compute file hashes (improve performance)")
 @click.argument("directory", type=click.Path(exists=True))
 @click.command()
-def scan(directory: str, no_file_hash: bool, save_scan: bool, print_out: bool):
+def scan(directory: str, no_file_hash: bool, print_out: bool, complete_rescan: bool):
     """
     DIRECTORY path to the scanned directory
     """
-    file_scan = FileScan(directory, no_file_hash)
-    if save_scan:
-        file_scan.dump(directory)
+    file_scan = FileScan(directory, no_file_hash, complete_rescan)
+    file_scan.dump(directory)
+
     if print_out:
         print(file_scan)
 
