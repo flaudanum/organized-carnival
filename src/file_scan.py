@@ -1,6 +1,7 @@
 import os
 import sys
 from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
 
 import orjson
@@ -8,6 +9,8 @@ import orjson
 from src import SCAN_DUMP_FILENAME
 from src.file_infos import FileInfo
 from src.hasher import Hasher
+
+DATETIME_FORMAT = "%y%m%d-%H:%M:%S%z"
 
 
 class FileScan:
@@ -22,6 +25,8 @@ class FileScan:
     def __init__(self, directory: str, no_file_hash: bool = False):
         self._directory = directory
         self._files = defaultdict(list)
+        local_tz = datetime.now().astimezone().tzinfo
+        self._created_at = datetime.now(tz=local_tz)
 
         # Creates a dummy object
         if directory == "":
@@ -59,6 +64,7 @@ class FileScan:
     def dump(self, directory):
         file_scan_dict = {
             "directory": self._directory,
+            "created_at": self._created_at.strftime(DATETIME_FORMAT),
             "files": {key: [info.to_dict() for info in infos] for key, infos in self._files.items()},
         }
         scan_dump_path = Path(directory) / SCAN_DUMP_FILENAME
@@ -86,5 +92,7 @@ class FileScan:
             for key, infos_dict in file_scan_dict["files"].items()
         }
         file_scan._files.update(file_scan_dict_files)
+
+        file_scan._created_at = datetime.strptime(file_scan_dict["created_at"], DATETIME_FORMAT)
 
         return file_scan
